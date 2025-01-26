@@ -1,0 +1,142 @@
+## What you were doing wrong in the notes.js code versus what you are doing right in your current code 
+
+1. STATE MANAGEMENT 
+-- addedTask.push(e.target.value) directly mutates the state, which is against React's rules. 
+State updates must be done immutably.
+-- Use setAddedTask([...addedTask, text]) to add a new task without mutating the array.
+
+====>>>> Always use immutable methods like map, filter or spread operator. Avoid mutating states directly which is
+not as per React's rules. 
+State updates are immutable. 
+
+2. INCORRECT LOGIC IN addTaskFunc
+-- You're pushing e.target.value into addedTask. 
+However, e.target.value refers to the button's value, not the input text.
+-- Use inputTask / text for the task value 
+
+====>>>> e.target.value is associated with e --> e of addTaskFunc --> which is indeed given to the +Add button 
+so that's where the e.target.value refers to the button's value and not to the input field 
+
+
+3. RENDERING THE TASKS wrong
+-- You're directly rendering addedTask, which is an array, causing the UI to break.
+-- Need to map over the addedTask array and render each task individually in the container. 
+
+
+
+////////////////// 
+
+A] State Management 
+We defined two states here and managing those. 
+inputTask --> Tracks the current value that the user is typing in the input field --> ""
+tasks --> It's an object representing the lists of all the tasks --> {id: Date.now(), text: inputTask , completed:false}
+
+B] handleInputChange 
+Pretty straight forward function that just updates the inputTask state whenever use types some input 
+
+C] addTaskFunc
+Crucial function. This functions takes care of adding a new task to the tasks list whenever user click on +Add button
+1. e.preventDefault() prevents form submission 
+2. Then with the trim function we check if the input is empty and user mistakenly clicked the +Add button so that the empty tasks are not added 
+3. We define a newTask object iwth id, text, completed keys and set their values as Date.now(), inputTask, false by preventDefault
+4. Then we add this newTask to the tasks list immutably using spread operator. setTasks([...tasks, newTask])
+5. We clear the input field for new incoming entries. 
+
+D] toggleComplete 
+1. We need to check whenever the checkbox is clicked so that we can mark the status of a task as completed.
+Hence, the need of this function
+2. Loops through all the tasks and for each "task" checks if that "task".id === id of the clicked task by the user on the UI 
+If it does match, it creates a new object {... "task"} with the opposite "completed" value 
+3. Otherwise, it returns the task as it is 
+
+tasks.map((task) => task.id === id ? {...task, completed: !task.completed} : task )
+
+E] editTask
+1. This edits the text of a task when the "Edit" button is clicked
+2. prompt("Edit your task") asks the user for new task text & stores this new input text in newTaskText variable
+3. if user does give newTaskText then we loop over the tasks like above and once the id matches, 
+we create a new Object {...task, text: newTaskText} with this newTaskText that we acquired.  
+
+F] deleteTask
+1. Filter function creates a new array of tasks excluding the task with the matching id
+setTasks(tasks.filter((task)=> task.id !== id));
+Here, if we said task.id === id then it will filter out return new array of that 1 id only. 
+Instead, we said !== which will mean that return ALL the other entries where the id is not equal to this clicked id
+
+
+
+
+/////////////////////////  Reg. the NewApp.js :
+
+1] { text, completed: false }: Creates a new task object with the text entered by the user and sets its completed status to false (indicating it's incomplete).
+2] setToDos([...toDos, { text, completed: false }]): Uses the setToDos function to update the toDos state.
+[...toDos, ...]: The spread operator ...toDos creates a new array containing all the existing tasks, and the new task is appended to it.
+
+3] const newToDos = [...toDos]: Creates a shallow copy of the toDos array to avoid directly mutating the state (React requires state to be updated immutably).
+
+
+
+
+////////////// Basics Clearing - CCQ :  https://chatgpt.com/c/6795f871-1b08-8010-ac00-0507da3a9a3c    ///////////////////////
+
+
+when do we use = and when do we use : to assign values?
+For example here we say key = {index} but we say textDecoration: "none" so how does that work ?
+
+/////  Use = when assigning a value or expression to an attribute/prop in JSX.
+Use : when defining key-value pairs in a JavaScript object. 
+\\\\\\
+
+ul>
+        {toDos.map((toDo, index) => (
+          <li
+            key={index}
+            style={{ textDecoration: toDo.completed ? "line-through" : "none" }}
+          >
+            {toDo.text}
+            <button onClick={() => toggleToDo(index)}> Toggle </button>
+            <button onClick={() => deleteToDo(index)}> Delete </button>
+          </li>
+        ))}
+</ul>
+
+///////
+
+When to use =
+The = operator is used in JavaScript to assign a value to a variable or property.
+For example:
+javascript
+Copy
+Edit
+const key = index; // Assigns the value of `index` to the variable `key`
+In JSX (JavaScript XML, used in React), = is used to pass props or values to attributes:
+jsx
+Copy
+Edit
+key={index} // Passing the `index` value to the `key` prop
+Here, key is the prop name, and {index} is the value being assigned.
+The curly braces {} mean you're embedding JavaScript code (like the index variable) inside JSX.
+
+\\\\\\\
+
+
+////////
+
+When to use :
+The : operator is used inside JavaScript objects to assign values to keys (properties) of the object.
+For example:
+javascript
+Copy
+Edit
+const style = {
+  textDecoration: "none", // Assigns the value "none" to the key `textDecoration`
+};
+In JSX, this happens when you pass an object to an attribute like style. Example:
+jsx
+Copy
+Edit
+style={{ textDecoration: "none" }}
+The outer {} means you're embedding JavaScript into JSX.
+Inside the {}, there is an object literal ({ textDecoration: "none" }), and the : is used to define key-value pairs in the object.
+
+\\\\\\\\\\\
